@@ -24,8 +24,6 @@ varying vec4 color;
 varying vec2 texcoord;
 varying vec2 vertLightmap;
 
-varying vec3 vertNormal;
-
 #include "/lib/Settings.glsl"
 #include "/lib/Utility.glsl"
 #include "/lib/Uniform/Shadow_View_Matrix.vsh"
@@ -44,6 +42,8 @@ vec3 GetWorldSpacePositionShadow() {
 #include "/lib/Vertex/Vertex_Displacements.vsh"
 
 #include "/lib/Misc/Bias_Functions.glsl"
+
+vec3 vertNormal = normalize(mat3(shadowViewMatrix) * gl_Normal); //doesn't seem like we need to pass this to fragment
 
 vec4 ProjectShadowMap(vec4 position) {
 	position = vec4(projMAD(shadowProjection, transMAD(shadowViewMatrix, position.xyz)), position.z * shadowProjection[2].w + shadowProjection[3].w);
@@ -79,9 +79,6 @@ void main() {
 	color        = gl_Color;
 	texcoord     = gl_MultiTexCoord0.st;
 	vertLightmap = GetDefaultLightmap();
-	
-	vertNormal   = normalize(mat3(shadowViewMatrix) * gl_Normal);
-	
 	
 	vec3 position  = GetWorldSpacePositionShadow();
 	     position += CalculateVertexDisplacements(position);
